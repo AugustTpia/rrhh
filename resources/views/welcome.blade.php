@@ -143,7 +143,7 @@
             }, 6000);
         }
     }" x-init="init()">
-        <div class="relative h-64 sm:h-80 lg:h-96 w-full overflow-hidden">
+        <div class="relative h-64 sm:h-80 lg:h-96 w-full overflow-hidden bg-[#0A192F]">
             <template x-for="(slide, index) in slides" :key="index">
                 <div x-show="activeSlide === index" 
                      x-transition:enter="transition ease-out duration-700" 
@@ -152,14 +152,14 @@
                      x-transition:leave="transition ease-in duration-500" 
                      x-transition:leave-start="opacity-100 scale-100" 
                      x-transition:leave-end="opacity-0 scale-95"
-                     class="absolute inset-0 w-full h-full">
-                    <img :src="slide.imagen" :alt="slide.titulo" class="w-full h-full object-cover opacity-55">
-                    <div class="absolute inset-0 bg-gradient-to-r from-[#0A192F] via-[#0A192F]/80 to-transparent"></div>
-                    <div class="absolute inset-0 flex items-center max-w-7xl mx-auto px-6 sm:px-12">
+                     class="absolute inset-0 w-full h-full bg-[#0A192F]">
+                    <img :src="slide.imagen" :alt="slide.titulo" class="w-full h-full object-contain">
+                    <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#0A192F]/90 via-[#0A192F]/35 to-transparent pointer-events-none"></div>
+                    <div class="absolute inset-0 flex items-end max-w-7xl mx-auto px-6 sm:px-12 pb-12 sm:pb-14">
                         <div class="max-w-2xl space-y-3 text-white">
-                            <span class="bg-[#0047AB] text-white text-[10px] font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow" x-text="slide.badge"></span>
-                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight" x-text="slide.titulo"></h2>
-                            <p class="text-sm sm:text-base text-slate-200 leading-relaxed" x-text="slide.subtitulo"></p>
+                            <span class="bg-[#0047AB] text-white text-[10px] font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-lg drop-shadow-lg" x-text="slide.badge"></span>
+                            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" x-text="slide.titulo"></h2>
+                            <p class="text-sm sm:text-base text-slate-100 leading-relaxed drop-shadow-[0_1px_6px_rgba(0,0,0,0.9)]" x-text="slide.subtitulo"></p>
                         </div>
                     </div>
                 </div>
@@ -231,10 +231,9 @@
 
                         @if($noticiaPrincipal)
                             <div class="relative rounded-2xl overflow-hidden bg-[#0A192F] text-white shadow-lg border border-slate-200 group">
-                                <div class="relative h-64 sm:h-80 w-full overflow-hidden">
-                                    <img src="{{ $noticiaPrincipal['imagen'] ?? 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80' }}" alt="Banner Noticia" class="w-full h-full object-cover opacity-65 group-hover:scale-105 transition duration-500">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-[#0A192F] via-[#0A192F]/60 to-transparent"></div>
-                                    <div class="absolute top-5 left-5 bg-[#E31B23] text-white text-[10px] font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow">Comunicado Oficial</div>
+                                <div class="relative h-64 sm:h-80 w-full overflow-hidden bg-[#0A192F]">
+                                    <img src="{{ $noticiaPrincipal['imagen'] ?? 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80' }}" alt="Banner Noticia" class="w-full h-full object-contain group-hover:scale-105 transition duration-500">
+                                    <div class="absolute top-5 left-5 bg-[#E31B23] text-white text-[10px] font-bold px-3.5 py-1.5 rounded-full uppercase tracking-widest shadow-lg drop-shadow-lg">Comunicado Oficial</div>
                                 </div>
                                 <div class="p-6 sm:p-8 relative -mt-16 z-10 space-y-3">
                                     <div class="flex items-center space-x-2.5 text-xs text-blue-200 font-medium">
