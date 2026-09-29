@@ -133,7 +133,7 @@
     </header>
 
     <!-- Área de Banners Principales (Carrusel Corporativo Dinámico) -->
-    <section class="bg-[#0A192F] border-b border-slate-800 relative overflow-hidden shadow-lg" x-data='{
+    <section class="bg-[#0A192F] border-b border-slate-800 relative overflow-hidden shadow-lg" x-data="{
         activeSlide: 0,
         slides: @js($slides),
         timer: null,
@@ -142,7 +142,7 @@
                 this.activeSlide = (this.activeSlide + 1) % this.slides.length;
             }, 6000);
         }
-    }' x-init="init()">
+    }" x-init="init()">
         <div class="relative h-64 sm:h-80 lg:h-96 w-full overflow-hidden">
             <template x-for="(slide, index) in slides" :key="index">
                 <div x-show="activeSlide === index" 
