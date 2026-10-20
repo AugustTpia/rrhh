@@ -236,6 +236,128 @@
         </div>
     </div>
 
+    <!-- Efectividad del proceso de reclutamiento -->
+    <div class="space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-[#0A192F] dark:text-white uppercase tracking-wide">Efectividad del proceso</h2>
+            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Meta vs. resultado</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Índice de contratación</p>
+                <h3 class="text-3xl font-black text-[#0A192F] dark:text-white mt-1">{{ $recruitment['hiring']['rate'] }}%</h3>
+                <p class="text-[11px] text-slate-400 mt-1">Meta ≥ 80%</p>
+                <div class="mt-4 flex items-center justify-between text-xs">
+                    <span class="text-slate-500 font-semibold uppercase">Contratados</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $recruitment['hiring']['contracted'] }}</span>
+                </div>
+                <div class="flex items-center justify-between text-xs mt-1">
+                    <span class="text-slate-500 font-semibold uppercase">Finalistas</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $recruitment['hiring']['finalists'] }}</span>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Aceptación de oferta</p>
+                <h3 class="text-3xl font-black text-[#0A192F] dark:text-white mt-1">{{ $recruitment['offers']['rate'] }}%</h3>
+                <p class="text-[11px] text-slate-400 mt-1">Meta ≥ 90%</p>
+                <div class="mt-4 flex items-center justify-between text-xs">
+                    <span class="text-slate-500 font-semibold uppercase">Aceptadas</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $recruitment['offers']['accepted'] }}</span>
+                </div>
+                <div class="flex items-center justify-between text-xs mt-1">
+                    <span class="text-slate-500 font-semibold uppercase">Emitidas</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $recruitment['offers']['emitted'] }}</span>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Calidad de contratación</p>
+                <h3 class="text-3xl font-black text-[#0A192F] dark:text-white mt-1">{{ $recruitment['retention']['rate'] }}%</h3>
+                <p class="text-[11px] text-slate-400 mt-1">Permanencia ≥ 90 días · Meta ≥ 90%</p>
+                <div class="mt-4 flex items-center justify-between text-xs">
+                    <span class="text-slate-500 font-semibold uppercase">Retenidos</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $recruitment['retention']['retained'] }}</span>
+                </div>
+                <div class="flex items-center justify-between text-xs mt-1">
+                    <span class="text-slate-500 font-semibold uppercase">Evaluables</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $recruitment['retention']['eligible'] }}</span>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Rotación de nuevo ingreso</p>
+                <h3 class="text-3xl font-black text-[#0A192F] dark:text-white mt-1">{{ $recruitment['turnover']['rate'] }}%</h3>
+                <p class="text-[11px] text-slate-400 mt-1">Bajas &lt; 90 días · Meta ≤ 10%</p>
+                <div class="mt-4 flex items-center justify-between text-xs">
+                    <span class="text-slate-500 font-semibold uppercase">Bajas tempranas</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $recruitment['turnover']['early'] }}</span>
+                </div>
+                <div class="flex items-center justify-between text-xs mt-1">
+                    <span class="text-slate-500 font-semibold uppercase">Ingresos</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $recruitment['turnover']['hires'] }}</span>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Fuente más efectiva</p>
+                <h3 class="text-xl font-black text-[#0A192F] dark:text-white mt-1 truncate" title="{{ $recruitment['sources']['top']['source'] ?? 'Sin datos' }}">
+                    {{ $recruitment['sources']['top']['source'] ?? 'Sin datos' }}
+                </h3>
+                <p class="text-[11px] text-slate-400 mt-1">Contrataciones por fuente</p>
+                <div class="mt-4 space-y-1 text-xs">
+                    @forelse($recruitment['sources']['ranking'] as $source)
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500 font-semibold uppercase truncate">{{ $source['source'] }}</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200">{{ $source['contracted'] }}/{{ $source['total'] }}</span>
+                        </div>
+                    @empty
+                        <span class="text-slate-400">Sin fuentes registradas.</span>
+                    @endforelse
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Costo por contratación</p>
+                <h3 class="text-3xl font-black text-[#0A192F] dark:text-white mt-1">
+                    ${{ number_format($recruitment['cost']['per_hire'], 2) }}
+                </h3>
+                <p class="text-[11px] text-slate-400 mt-1">Meta anual</p>
+                <div class="mt-4 flex items-center justify-between text-xs">
+                    <span class="text-slate-500 font-semibold uppercase">Inversión</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200">${{ number_format($recruitment['cost']['invested'], 2) }}</span>
+                </div>
+                <div class="flex items-center justify-between text-xs mt-1">
+                    <span class="text-slate-500 font-semibold uppercase">Contrataciones</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $recruitment['cost']['hires'] }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-3">
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Tiempo por etapa del proceso</p>
+                <p class="text-[11px] text-slate-400">Días promedio entre etapas completadas · Meta según SLA</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                @forelse($recruitment['stage_durations'] as $stage)
+                    <div class="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase truncate" title="{{ $stage['stage'] }}">{{ ucwords(str_replace('_', ' ', $stage['stage'])) }}</p>
+                            <p class="text-[10px] text-slate-400">
+                                {{ $stage['sla_days'] !== null ? 'Meta ≤ '.$stage['sla_days'].' d' : 'Sin SLA' }}
+                            </p>
+                        </div>
+                        <span class="text-xs font-black shrink-0 {{ $stage['on_target'] === false ? 'text-[#E31B23]' : ($stage['on_target'] === true ? 'text-emerald-600' : 'text-[#0A192F] dark:text-white') }}">{{ $stage['avg_days'] }} d</span>
+                    </div>
+                @empty
+                    <span class="text-xs text-slate-400">Sin etapas registradas para el periodo.</span>
+                @endforelse
+            </div>
+        </div>
+    </div>
+
     <!-- Tabla Detallada -->
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">

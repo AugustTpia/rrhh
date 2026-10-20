@@ -24,4 +24,19 @@ class Candidate extends Model
     {
         return $this->belongsTo(Vacancy::class);
     }
+
+    public function stages()
+    {
+        return $this->hasMany(CandidateStage::class);
+    }
+
+    public function offers()
+    {
+        return $this->hasMany(JobOffer::class);
+    }
+
+    public function hire()
+    {
+        return $this->hasOne(Hire::class);
+    }
 }

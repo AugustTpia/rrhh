@@ -2,6 +2,8 @@
 
 use App\Application\Dashboard\GetDashboardStatsUseCase;
 use App\Domain\Dashboard\ValueObjects\VacancyFilter;
+use App\Infrastructure\Dashboard\DbStageSlaProvider;
+use App\Infrastructure\Dashboard\EloquentRecruitmentMetricsRepository;
 use App\Infrastructure\Dashboard\EloquentVacancyStatsRepository;
 use App\Infrastructure\Dashboard\ExternalCatalogRepository;
 use App\Models\Vacancy;
@@ -28,6 +30,8 @@ test('usecase computes kpis from real local data', function () {
     $useCase = new GetDashboardStatsUseCase(
         new EloquentVacancyStatsRepository,
         new ExternalCatalogRepository,
+        new EloquentRecruitmentMetricsRepository,
+        new DbStageSlaProvider,
     );
 
     $stats = $useCase->handle(VacancyFilter::fromArray([]));

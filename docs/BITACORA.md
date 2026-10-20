@@ -161,3 +161,53 @@ Formato por entrada: Fecha / Objetivo / Cambios por capa / Filtros afectados / C
 ### Cambios
 - Se intentó la edición automatizada del `.docx` con `python-docx`, pero el formato resultante no igualó al original (espaciados y tarjetas), así que **se revirtió el documento a su estado original** (26 párrafos de cuerpo, 6 tablas) y se eliminó el respaldo. No queda ningún cambio en `Reporte_Tecnico_Operativo.docx`.
 - El texto de la nueva sección se entregó en el chat: portada (periodo 15–25), ajuste al Resumen, nota al Módulo 4 y sección “4. Segunda Etapa” completa (Módulo 5 + cimientos técnicos).
+
+---
+
+## [2026-10-20] — Fase 5: indicadores de efectividad del reclutamiento
+
+### Objetivo
+- Completar el tablero con los indicadores de `indicadores.jpeg` que faltaban: contratación, aceptación de oferta, calidad, rotación de nuevo ingreso, fuente efectiva, costo por contratación y tiempo por etapa, sin alterar el diseño existente.
+
+### Cambios por capa
+- **Persistencia (5 migraciones `2026_09_24_000001–000005`, ya migradas):** `candidate_stages` (única por candidato+etapa, `completed_at`), `position_required_stages` (etapas exigidas por puesto), `job_offers` (`emitida|aceptada|rechazada`), `hires` (`hire_date`/`termination_date`) y `hiring_costs` (`period` YYYY-MM, inversión, contrataciones).
+- **Seeders:** `PositionRequiredStagesSeeder` con el mapeo aprobado de `docs/etapas.jpeg` para los 10 puestos (6 etapas base para todos; capacitación/dirección/gerente/socioeconómico/manejo/visita según puesto) y `RecruitmentDemoSeeder` idempotente que crea 3 candidatos demo sobre DEMO01/02/03 (un finalista, un contratado con 120 días de antigüedad y una oferta rechazada) + costo mensual.
+- **Domain (`RecruitmentMetricsRepositoryInterface`):** puerto puro con `hiringCounts`, `offerCounts`, `retentionCounts`, `turnoverCounts`, `sourcesRanking`, `costTotals` y `stageDurations`.
+- **Application (`GetDashboardStatsUseCase`):** calcula los porcentajes (contratados/finalistas, aceptadas/emitidas, retenidos/evaluables, bajas tempranas/ingresos, costo por contratación) y expone la clave `recruitment`.
+- **Infrastructure (`EloquentRecruitmentMetricsRepository`):** finalista = candidato con todas las etapas requeridas del puesto de su vacante (comparación por título normalizado lower+ASCII para tolerar acentos); filtros del tablero aplicados sobre vacante y fechas del candidato/oferta/contratación; diferencias de días y cálculo de rotación resueltos en PHP para mantener compatibilidad SQLite/MySQL.
+- **SLA por etapa:** `config/recruitment.php` define los días objetivo por código de etapa; `StageSlaProviderInterface` (Domain) + `ConfigStageSlaProvider` (Infrastructure, normaliza mayúsculas/acentos) lo exponen y `GetDashboardStatsUseCase` anota cada etapa con `sla_days` y `on_target`.
+- **Livewire/Blade:** `VacancyDashboard` pasa `$recruitment`; nueva sección “Efectividad del proceso” con 6 tarjetas (mismo estilo del tablero) + bloque de días promedio por etapa, mostrando “Meta ≤ X d” y el promedio en verde/rojo según cumplimiento. No se tocó el diseño previo.
+
+### Cómo probar
+- `php artisan migrate` + `php artisan db:seed` (siembra etapas y datos demo).
+- `/dashboard` → sección “Efectividad del proceso”: contratación 50% (1/2), oferta 50% (1/2), calidad 100% (1/1), rotación 0% (0/1), fuente Indeed, costo $15,000 y etapas con meta SLA (verde si cumple, rojo si excede).
+- `php artisan test --filter=RecruitmentMetrics` → 4/4. Suite completa: 35/37; fallo único el preexistente `SecurityTest@renders_without_two_factor`.
+
+### Pendiente
+- Reemplazar los datos demo por captura real de etapas/ofertas/contrataciones cuando el módulo de candidatos tenga UI.
+- Editar los SLA desde la interfaz (hoy se ajustan en `config/recruitment.php`).
+
+---
+
+## [2026-10-20] — Fase 6: SLA editable desde UI + corrección hexagonal de Vacantes
+
+### Objetivo
+- Permitir ajustar los días objetivo (SLA) de cada etapa sin editar código, y eliminar el acceso directo a Eloquent desde el adaptador Livewire de vacantes.
+
+### Cambios por capa
+- **Persistencia:** migración `2026_10_20_161049_create_stage_sla_configs_table` (`stage` único, `sla_days`), modelo `StageSlaConfig` y `StageSlaConfigSeeder` (siembra los valores de `config/recruitment.php` y cualquier etapa presente en `position_required_stages`).
+- **Domain (`StageSlaProviderInterface`):** se agrega `all()`; nuevo puerto `StageSlaWriterInterface` para escritura. Se elimina `ConfigStageSlaProvider` (reemplazado).
+- **Infrastructure (`DbStageSlaProvider`):** implementa lectura y escritura; parte de `config/recruitment.php` como respaldo y aplica overrides de BD; normaliza claves (lower+ASCII) e invalida su caché interna al guardar.
+- **Application:** nuevo `UpdateStageSlasUseCase` (valida etapa/días y delega al puerto de escritura).
+- **Adaptador Livewire:** `app/Livewire/Settings/StageSlaEditor.php` + vista `resources/views/livewire/settings/stage-sla-editor.blade.php` (tabla editable con validación 1–60 días). Ruta independiente `GET /admin/sla` (`admin.sla`, auth+verified) y acceso en el sidebar (Plataforma → SLA por etapa).
+- **Vacantes (hexagonal):** nuevo puerto `App\Domain\Vacancies\Contracts\VacancyRepositoryInterface` + DTO `VacancySummary`, caso de uso `ManageVacanciesUseCase` (folio y estatus inicial como regla de negocio) y adaptador `App\Infrastructure\Vacancies\EloquentVacancyRepository`; bind en `AppServiceProvider`. `app/Livewire/Vacancies/Index.php` ya no usa `App\Models\Vacancy` ni `Str` directamente.
+
+### Cómo probar
+- `php artisan migrate` + `php artisan db:seed --class=StageSlaConfigSeeder` → `/admin/sla` lista 13 etapas; cambiar una y guardar → `/dashboard` refleja el nuevo SLA (verde/rojo) sin limpiar caché.
+- Validación: SLA 0 o vacío muestra error y no persiste.
+- `/vacantes`: alta y eliminación siguen funcionando; el folio se genera en el caso de uso.
+- `php artisan test --filter=StageSlaEditorTest` → 3/3; suite completa 38/40; único fallo el preexistente `SecurityTest@renders_without_two_factor`.
+
+### Pendiente
+- Restringir `/admin/sla` por rol/permiso cuando exista el módulo de roles.
+- Reemplazar datos demo de reclutamiento por captura real (módulo de candidatos).

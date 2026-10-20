@@ -102,6 +102,7 @@ class VacancyDashboard extends Component
             'catalogBranches' => $stats['catalogs']['branches'],
             'catalogPositions' => $stats['catalogs']['positions'],
             'catalogYears' => $stats['catalogs']['years'],
+            'recruitment' => $stats['recruitment'],
         ]);
     }
 }

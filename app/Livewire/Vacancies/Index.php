@@ -2,9 +2,8 @@
 
 namespace App\Livewire\Vacancies;
 
+use App\Application\Vacancies\ManageVacanciesUseCase;
 use App\Domain\Dashboard\Contracts\CatalogRepositoryInterface;
-use App\Models\Vacancy;
-use Illuminate\Support\Str;
 use Livewire\Component;
 
 class Index extends Component
@@ -32,7 +31,7 @@ class Index extends Component
         $this->branch = '';
     }
 
-    public function save()
+    public function save(ManageVacanciesUseCase $useCase)
     {
         $this->validate([
             'title' => 'required|min:3',
@@ -42,53 +41,33 @@ class Index extends Component
             'type' => 'required|in:publica,confidencial',
         ]);
 
-        $folio = 'VAC-'.date('Y').'-'.strtoupper(Str::random(5));
-
-        Vacancy::create([
-            'folio' => $folio,
+        $vacancy = $useCase->create([
             'title' => $this->title,
             'branch' => $this->branch,
             'region' => $this->region,
             'reason' => $this->reason,
             'type' => $this->type,
             'description' => $this->description,
-            'status' => 'activa',
         ]);
 
-        session()->flash('success', "Vacante registrada exitosamente con folio: {$folio}");
+        session()->flash('success', "Vacante registrada exitosamente con folio: {$vacancy->folio}");
 
         $this->reset(['title', 'branch', 'region', 'description', 'showCreateModal']);
         $this->reason = 'nueva_creacion';
         $this->type = 'publica';
     }
 
-    public function delete($id)
+    public function delete(int $id, ManageVacanciesUseCase $useCase)
     {
-        $vacancy = Vacancy::find($id);
-        if ($vacancy) {
-            $vacancy->delete();
+        if ($useCase->delete($id)) {
             session()->flash('success', 'Vacante eliminada correctamente.');
         }
     }
 
-    public function render(CatalogRepositoryInterface $catalogs)
+    public function render(CatalogRepositoryInterface $catalogs, ManageVacanciesUseCase $useCase)
     {
-        $query = Vacancy::query();
-
-        if ($this->search) {
-            $query->where(function ($q) {
-                $q->where('title', 'like', '%'.$this->search.'%')
-                    ->orWhere('folio', 'like', '%'.$this->search.'%')
-                    ->orWhere('branch', 'like', '%'.$this->search.'%');
-            });
-        }
-
-        if ($this->statusFilter) {
-            $query->where('status', $this->statusFilter);
-        }
-
         return view('livewire.vacancies.index', [
-            'vacancies' => $query->latest()->get(),
+            'vacancies' => $useCase->list($this->search, $this->statusFilter),
             'regionOptions' => $catalogs->regions(),
             'branchOptions' => $catalogs->branches($this->region !== '' ? $this->region : null),
         ]);

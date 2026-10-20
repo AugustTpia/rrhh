@@ -42,6 +42,16 @@
                     >
                         {{ __('Candidatos') }}
                     </flux:sidebar.item>
+
+                    <flux:sidebar.item
+                        icon="clock"
+                        :href="route('admin.sla')"
+                        :current="request()->routeIs('admin.sla')"
+                        wire:navigate
+                        class="rounded-xl font-medium hover:bg-slate-800/60"
+                    >
+                        {{ __('SLA por etapa') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
 
                 <flux:sidebar.group :heading="__('Contenido Portal')">
